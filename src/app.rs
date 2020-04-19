@@ -36,15 +36,24 @@ impl App {
         while let Some(e) = self.win.next() {
             let debug = self.debug;
 
-            if let Some(i) = e.press_args() {
-                match self.state {
-                    States::Menu => self.menu.input(&i, true)
-                }
-            }
-    
-            if let Some(i) = e.release_args() {
-                match self.state {
-                    States::Menu => self.menu.input(&i, false)
+            match self.state {
+                States::Menu => {
+                    if let Some(i) = e.press_args() {
+                        self.state = self.menu.input(&i, true);
+                    }
+                    if let Some(i) = e.release_args() {
+                        self.state = self.menu.input(&i, false);
+                    }
+                    self.menu.update();
+                },
+                States::Options => {
+                    if let Some(i) = e.press_args() {
+                        self.state = self.options.input(&i, true);
+                    }
+                    if let Some(i) = e.release_args() {
+                        self.state = self.options.input(&i, false);
+                    }
+                    self.options.update();
                 }
             }
 
