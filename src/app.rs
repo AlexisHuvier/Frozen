@@ -1,16 +1,19 @@
 use piston_window::*;
 use crate::utils::FPSCounter;
 use crate::utils::Color;
-use crate::states::Menu;
+use crate::states::{Menu, Options};
 
+#[derive(Copy, Clone, PartialEq)]
 pub enum States {
-    Menu
+    Menu,
+    Options
 }
 
 pub struct App {
     win: PistonWindow,
     debug: bool,
     menu: Menu,
+    options: Options,
     state: States 
 }
 
@@ -21,6 +24,7 @@ impl App {
             win: WindowSettings::new("Frozen", size).build().unwrap_or_else(|e| panic!("Failed to build App: {}", e)),
             debug: debug,
             menu: Menu::new(size),
+            options: Options::new(size),
             state: States::Menu
         }
     }
@@ -44,17 +48,18 @@ impl App {
                 }
             }
 
-            let mut world;
-
-            match self.state {
-                States::Menu => world = self.menu.clone()
-            }
+            let mut menu = self.menu.clone();
+            let mut options = self.options.clone();
+            let state = self.state;
 
             self.win.draw_2d(&e, |c, g, device| {
                 let fps = fps_counter.tick();
                 clear(Color::new(0, 197, 255).get_float(), g);
-
-                world.draw(c, g, device, &mut glyphs);
+                
+                match state {
+                    States::Menu => menu.draw(c, g, device, &mut glyphs),
+                    States::Options => options.draw(c, g, device, &mut glyphs)
+                }
 
                 if debug {
                     let transform = c.transform.trans(10., 20.);
