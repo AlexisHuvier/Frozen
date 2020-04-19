@@ -1,5 +1,6 @@
 use piston_window::*;
 use crate::utils::{Position, TextRender, Color};
+use std::process::exit;
 
 #[derive(Clone)]
 pub struct Menu {
@@ -35,6 +36,9 @@ impl Menu {
         if is_press {
             if let Button::Keyboard(key) = *button {
                 match key {
+                    Key::Return => {
+                        if self.selected_btn == 3 { exit(0); }
+                    }
                     Key::Up => if self.selected_btn > 1 { self.selected_btn -= 1; },
                     Key::Down => if self.selected_btn < 3 { self.selected_btn += 1; },
                     _ => ()
