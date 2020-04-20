@@ -1,6 +1,5 @@
 use piston_window::*;
-use crate::utils::FPSCounter;
-use crate::utils::Color;
+use crate::utils::{FPSCounter, Color, Config};
 use crate::states::{Menu, Options};
 
 #[derive(Copy, Clone, PartialEq)]
@@ -18,13 +17,15 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(debug: bool) -> App {
+    pub fn new() -> App {
         let size = Size { width: 1280., height: 960. };
+        let conf = Config::new("./resources/config.json");
+        let debug = conf.get("debug").as_bool().expect("[Config] Debug value must be boolean");
         App {
             win: WindowSettings::new("Frozen", size).build().unwrap_or_else(|e| panic!("Failed to build App: {}", e)),
             debug: debug,
             menu: Menu::new(size),
-            options: Options::new(size),
+            options: Options::new(size, conf),
             state: States::Menu
         }
     }
