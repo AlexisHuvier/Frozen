@@ -13,7 +13,7 @@ pub struct App {
     debug: bool,
     menu: Menu,
     options: Options,
-    state: States 
+    state: States
 }
 
 impl App {
@@ -22,7 +22,7 @@ impl App {
         let conf = Config::new("./resources/config.json");
         let debug = conf.get("debug").as_bool().expect("[Config] Debug value must be boolean");
         App {
-            win: WindowSettings::new("Frozen", size).build().unwrap_or_else(|e| panic!("Failed to build App: {}", e)),
+            win: WindowSettings::new("Frozen", size).resizable(false).build().unwrap_or_else(|e| panic!("Failed to build App: {}", e)),
             debug: debug,
             menu: Menu::new(size),
             options: Options::new(size, conf),
