@@ -56,7 +56,6 @@ impl App {
                     if let Some(i) = e.release_args() {
                         self.info = self.menu.input(&i, false, self.info);
                     }
-                    self.info = self.menu.update(self.info);
                 },
                 States::Options => {
                     if let Some(i) = e.press_args() {
@@ -65,7 +64,6 @@ impl App {
                     if let Some(i) = e.release_args() {
                         self.info = self.options.input(&i, false, self.info);
                     }
-                    self.info = self.options.update(self.info);
                 },
                 States::Game => {
                     if let Some(i) = e.press_args() {
@@ -74,7 +72,6 @@ impl App {
                     if let Some(i) = e.release_args() {
                         self.info = self.game.input(&i, false, self.info);
                     }
-                    self.info = self.game.update(self.info);
                 }
             }
 
@@ -83,9 +80,18 @@ impl App {
                 clear(Color::new(0, 197, 255).get_float(), g);
                 
                 match self.info.state {
-                    States::Menu => self.menu.draw(c, g, device, &mut glyphs),
-                    States::Options => self.options.draw(c, g, device, &mut glyphs),
-                    States::Game => self.game.draw(c, g, device, &mut glyphs)
+                    States::Menu => {
+                        self.menu.draw(c, g, device, &mut glyphs);
+                        self.info = self.menu.update(self.info);
+                    },
+                    States::Options => {
+                        self.options.draw(c, g, device, &mut glyphs);
+                        self.info = self.options.update(self.info);
+                    },
+                    States::Game => {
+                        self.game.draw(c, g, device, &mut glyphs);
+                        self.info = self.game.update(self.info);
+                    }
                 }
 
                 if self.info.debug {
