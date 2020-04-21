@@ -39,6 +39,7 @@ impl Menu {
             if let Button::Keyboard(key) = *button {
                 match key {
                     Key::Return => {
+                        if self.selected_btn == 1 { info.state = States::Game }
                         else if self.selected_btn == 2 { info.state = States::Options }
                         else if self.selected_btn == 3 { exit(0); }
                     }

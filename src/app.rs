@@ -24,6 +24,7 @@ impl AppInfo {
 pub struct App {
     info: AppInfo,
     menu: Menu,
+    game: Game,
     options: Options,
 }
 
@@ -33,8 +34,8 @@ impl App {
         App {
             info: AppInfo::new(&conf),
             menu: Menu::new(size),
-            options: Options::new(size, conf),
-            state: States::Menu
+            game: Game::new(factory),
+            options: Options::new(size, conf)
         }
     }
 
@@ -63,11 +64,14 @@ impl App {
                     }
                     self.info = self.options.update(self.info);
                 },
+                States::Game => {
+                    if let Some(i) = e.press_args() {
+                        self.info = self.game.input(&i, true, self.info);
                     }
                     if let Some(i) = e.release_args() {
-                        self.state = self.options.input(&i, false);
+                        self.info = self.game.input(&i, false, self.info);
                     }
-                    self.options.update();
+                    self.info = self.game.update(self.info);
                 }
             }
 
@@ -78,6 +82,7 @@ impl App {
                 match self.info.state {
                     States::Menu => self.menu.draw(c, g, device, &mut glyphs),
                     States::Options => self.options.draw(c, g, device, &mut glyphs),
+                    States::Game => self.game.draw(c, g, device, &mut glyphs)
                 }
 
                 if self.info.debug {
