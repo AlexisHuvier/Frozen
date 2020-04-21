@@ -5,7 +5,10 @@ use crate::states::*;
 #[derive(Copy, Clone, PartialEq)]
 pub enum States {
     Menu,
-    Options
+    Options,
+    Game
+}
+
 #[derive(Copy, Clone, PartialEq)]
 pub struct AppInfo {
     pub debug: bool,
