@@ -20,7 +20,7 @@ impl Game {
     pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo { info }
 
     pub fn update(&mut self, info: AppInfo) -> AppInfo { 
-        self.elsa.update_sprite(true);
+        self.elsa.update(&self.platforms);
         info 
     }
 
