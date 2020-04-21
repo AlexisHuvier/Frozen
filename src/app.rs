@@ -6,21 +6,32 @@ use crate::states::*;
 pub enum States {
     Menu,
     Options
+#[derive(Copy, Clone, PartialEq)]
+pub struct AppInfo {
+    pub debug: bool,
+    pub state: States
+}
+
+impl AppInfo {
+    pub fn new(conf: &Config) -> AppInfo {
+        AppInfo {
+            debug: conf.get("debug").as_bool().expect("[Config] Debug value must be boolean"),
+            state: States::Menu
+        } 
+    }
 }
 
 pub struct App {
-    debug: bool,
+    info: AppInfo,
     menu: Menu,
     options: Options,
-    state: States
 }
 
 impl App {
     pub fn new(factory: &mut gfx_device_gl::Factory, size: Size) -> App {
         let conf = Config::new("./resources/config.json");
-        let debug = conf.get("debug").as_bool().expect("[Config] Debug value must be boolean");
         App {
-            debug: debug,
+            info: AppInfo::new(&conf),
             menu: Menu::new(size),
             options: Options::new(size, conf),
             state: States::Menu
@@ -31,22 +42,27 @@ impl App {
         let mut glyphs = win.load_font("./resources/fonts/general.ttf").expect("Unable to load font : general.ttf");
         let mut fps_counter = FPSCounter::new();
 
-            let debug = self.debug;
         while let Some(e) = win.next() {
 
-            match self.state {
+            match self.info.state {
                 States::Menu => {
                     if let Some(i) = e.press_args() {
-                        self.state = self.menu.input(&i, true);
+                        self.info = self.menu.input(&i, true, self.info);
                     }
                     if let Some(i) = e.release_args() {
-                        self.state = self.menu.input(&i, false);
+                        self.info = self.menu.input(&i, false, self.info);
                     }
-                    self.menu.update();
+                    self.info = self.menu.update(self.info);
                 },
                 States::Options => {
                     if let Some(i) = e.press_args() {
-                        self.state = self.options.input(&i, true);
+                        self.info = self.options.input(&i, true, self.info);
+                    }
+                    if let Some(i) = e.release_args() {
+                        self.info = self.options.input(&i, false, self.info);
+                    }
+                    self.info = self.options.update(self.info);
+                },
                     }
                     if let Some(i) = e.release_args() {
                         self.state = self.options.input(&i, false);
@@ -59,12 +75,12 @@ impl App {
                 let fps = fps_counter.tick();
                 clear(Color::new(0, 197, 255).get_float(), g);
                 
-                match state {
+                match self.info.state {
                     States::Menu => self.menu.draw(c, g, device, &mut glyphs),
                     States::Options => self.options.draw(c, g, device, &mut glyphs),
                 }
 
-                if debug {
+                if self.info.debug {
                     let transform = c.transform.trans(10., 20.);
                     let _res = text::Text::new_color(Color::new(255, 255, 255).get_float(), 20).draw(
                         &*format!("FPS : {}", fps),

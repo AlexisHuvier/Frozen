@@ -1,6 +1,6 @@
 use piston_window::*;
 use crate::utils::{Position, TextRender, Config};
-use crate::States;
+use crate::{States, AppInfo};
 
 #[derive(Clone)]
 struct OptionGameBool {
@@ -81,7 +81,8 @@ impl Options {
         polygon(color::WHITE, &polygon2, c.transform, g);
     }
 
-    pub fn input(&mut self, button: &Button, is_press: bool) -> States {
+    pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo {
+        let mut info = info;
         if is_press {
             if let Button::Keyboard(key) = *button {
                 match key {
@@ -90,6 +91,7 @@ impl Options {
                             0 => {
                                 let value = self.debug.change_value(true);
                                 self.config.set_bool("debug", value);
+                                info.debug = value;
                             },
                             _ => ()
                         }
@@ -99,19 +101,20 @@ impl Options {
                             0 => {
                                 let value = self.debug.change_value(false);
                                 self.config.set_bool("debug", value);
+                                info.debug = value;
                             },
                             _ => ()
                         }
                     },
                     Key::Up => if self.selected_option > 0 { self.selected_option -= 1 },
                     Key::Down => if self.selected_option < 0 { self.selected_option += 1 },
-                    Key::Return => { self.config.save(); return States::Menu;},
+                    Key::Return => { self.config.save(); info.state = States::Menu;},
                     _ => ()
                 }
             }
         }
-        States::Options
+        info
     }
 
-    pub fn update(&mut self) { }
+    pub fn update(&mut self, info: AppInfo) -> AppInfo { info }
 }

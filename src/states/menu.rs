@@ -1,7 +1,7 @@
 use piston_window::*;
 use crate::utils::{Position, TextRender, Color};
 use std::process::exit;
-use crate::States;
+use crate::{AppInfo, States};
 
 #[derive(Clone)]
 pub struct Menu {
@@ -33,12 +33,13 @@ impl Menu {
         }
     }
 
-    pub fn input(&mut self, button: &Button, is_press: bool) -> States {
+    pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo {
+        let mut info = info;
         if is_press {
             if let Button::Keyboard(key) = *button {
                 match key {
                     Key::Return => {
-                        if self.selected_btn == 2 { return States::Options }
+                        else if self.selected_btn == 2 { info.state = States::Options }
                         else if self.selected_btn == 3 { exit(0); }
                     }
                     Key::Up => if self.selected_btn > 1 { self.selected_btn -= 1; },
@@ -47,8 +48,8 @@ impl Menu {
                 }
             }
         }
-        States::Menu
+        info
     }
 
-    pub fn update(&mut self) { }
+    pub fn update(&mut self, info: AppInfo) -> AppInfo { info }
 }
