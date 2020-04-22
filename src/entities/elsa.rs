@@ -15,7 +15,9 @@ pub struct Elsa {
     max_gravity: i8,
     pub gravity: i8,
     time_gravity: u8,
-    pub grounded: bool,
+    grounded: bool,
+    movements: [bool;3],
+    jumping: bool,
     pub anim: ElsaAnimations
 }
 
@@ -37,6 +39,8 @@ impl Elsa {
             gravity: 5,
             time_gravity: 5,
             grounded: false,
+            movements: [false, false, false],
+            jumping: false,
             anim: ElsaAnimations::IDLE
         }
     }
@@ -73,6 +77,31 @@ impl Elsa {
     }
 
     pub fn update(&mut self, platforms: &Vec<Platform>) {
+        //Mouvements
+        let mut pos = self.pos;
+        if self.movements[0] {
+            pos.x -= 5;
+        }
+        if self.movements[1] {
+            pos.x += 5;
+        }
+
+        if self.can_go(&pos, platforms) {
+            self.pos = pos;
+        }
+
+        //Jump
+        if self.movements[2] {
+            if self.grounded && ! self.jumping {
+                self.grounded = false;
+                self.jumping = true;
+                self.gravity = -self.max_gravity;
+            }
+        }
+        else {
+            self.jumping = false;
+        }
+
         //Update Gravity
         let futurpos = Position::new(self.pos.x, self.pos.y + self.gravity as i32);
         if self.can_go(&futurpos, platforms) {
@@ -94,6 +123,15 @@ impl Elsa {
 
         //Update Sprite
         self.update_sprite(true);
+    }
+
+    pub fn input(&mut self, key: Key, is_press: bool) {
+        match key {
+            Key::Left => self.movements[0] = is_press,
+            Key::Right => self.movements[1] = is_press,
+            Key::Up => self.movements[2] = is_press,
+            _ => ()
+        }
     }
 
     pub fn render<G>(&mut self, c: piston_window::Context, g: &mut G) 

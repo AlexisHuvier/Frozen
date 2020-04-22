@@ -17,7 +17,12 @@ impl Game {
         }
     }
 
-    pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo { info }
+    pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo { 
+        if let Button::Keyboard(key) = *button {
+            self.elsa.input(key, is_press);
+        }
+        info 
+    }
 
     pub fn update(&mut self, info: AppInfo) -> AppInfo { 
         self.elsa.update(&self.platforms);
