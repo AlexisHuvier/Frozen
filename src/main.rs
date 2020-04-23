@@ -13,5 +13,5 @@ fn main() {
     let mut win: PistonWindow = WindowSettings::new("Frozen", size).resizable(false).build().unwrap_or_else(|e| panic!("Failed to build App: {}", e));
     let mut factory = win.factory.clone();
     let mut app = App::new(&mut factory, size);
-    app.run(&mut win);
+    app.run(&mut win, &mut factory);
 }

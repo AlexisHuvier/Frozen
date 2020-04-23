@@ -44,7 +44,7 @@ impl App {
         }
     }
 
-    pub fn run(&mut self, win: &mut PistonWindow) {
+    pub fn run(&mut self, win: &mut PistonWindow, factory: &mut gfx_device_gl::Factory) {
         let mut glyphs = win.load_font("./resources/fonts/general.ttf").expect("Unable to load font : general.ttf");
         let mut fps_counter = FPSCounter::new();
 
@@ -69,13 +69,17 @@ impl App {
                 },
                 States::Game => {
                     if let Some(i) = e.press_args() {
-                        self.info = self.game.input(&i, true, self.info);
+                        self.info = self.game.input(&i, true, factory, self.info);
                     }
                     if let Some(i) = e.release_args() {
-                        self.info = self.game.input(&i, false, self.info);
+                        self.info = self.game.input(&i, false, factory, self.info);
                     }
                 }
             }
+
+            e.mouse_cursor(|pos| {
+                self.game.mouse_move(pos);
+            });
 
             win.draw_2d(&e, |c, g, device| {
                 let fps = fps_counter.tick();

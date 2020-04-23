@@ -8,14 +8,16 @@ use crate::AppInfo;
 
 pub struct Game {
     pub elsa: Elsa,
-    pub platforms: Vec<Platform>
+    pub platforms: Vec<Platform>,
+    pub mouse_pos: [f64; 2]
 }
 
 impl Game {
     pub fn new(factory: &mut gfx_device_gl::Factory) -> Game {
         Game {
             elsa: Elsa::new(factory),
-            platforms: vec!()
+            platforms: vec!(),
+            mouse_pos: [0., 0.]
         }
     }
 
@@ -46,9 +48,21 @@ impl Game {
         self.platforms = platforms;
     }
 
-    pub fn input(&mut self, button: &Button, is_press: bool, info: AppInfo) -> AppInfo { 
+    pub fn mouse_move(&mut self, pos: [f64; 2]) {
+        self.mouse_pos = pos;
+    }
+
+    pub fn input(&mut self, button: &Button, is_press: bool, factory: &mut gfx_device_gl::Factory, info: AppInfo) -> AppInfo { 
         if let Button::Keyboard(key) = *button {
             self.elsa.input(key, is_press);
+        }
+        if let Button::Mouse(btn) = *button {
+            if is_press {
+                match btn {
+                    MouseButton::Left => self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory)),
+                    _ => ()
+                }
+            }
         }
         info 
     }
