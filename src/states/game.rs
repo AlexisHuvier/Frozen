@@ -37,7 +37,7 @@ impl Game {
             for y in 0..map["blocks"][x].len() {
                 let id = map["blocks"][x][y].as_i32().expect(&*format!("[Level] Block ({}, {}) must be a integer.", y, x));
                 if id != 0 {
-                    let plat_pos = Position::new(y as i32*77+mappos.x, x as i32*77+mappos.y);
+                    let plat_pos = Position::new(y as i32*76+mappos.x, x as i32*76+mappos.y);
                     platforms.push(Platform::new(plat_pos, &*format!("./resources/images/Tiles/{}.png", id), factory));
                 }
             }

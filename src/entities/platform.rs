@@ -10,7 +10,7 @@ pub struct Platform {
 impl Platform {
     pub fn new(pos: Position, sprite: &str, factory: &mut gfx_device_gl::Factory) -> Platform {
         let mut sprite = load_sprite(factory, sprite);
-        sprite.set_scale(0.6, 0.6);
+        sprite.set_scale(0.59375, 0.59375);
         sprite.set_position(pos.x as f64, pos.y as f64);
         Platform {
             pos: pos,
