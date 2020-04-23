@@ -34,10 +34,12 @@ pub struct App {
 impl App {
     pub fn new(factory: &mut gfx_device_gl::Factory, size: Size) -> App {
         let conf = Config::new("./resources/config.json");
+        let mut game = Game::new(factory);
+        game.level(1, factory);
         App {
             info: AppInfo::new(&conf),
             menu: Menu::new(size),
-            game: Game::new(factory),
+            game: game,
             options: Options::new(size, conf)
         }
     }
