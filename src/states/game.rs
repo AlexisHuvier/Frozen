@@ -101,8 +101,11 @@ impl Game {
         info 
     }
 
-    pub fn update(&mut self, info: AppInfo) -> AppInfo { 
+    pub fn update(&mut self, factory: &mut gfx_device_gl::Factory, info: AppInfo) -> AppInfo { 
         self.elsa.update(&self.platforms);
+        if self.elsa.pos.y > 1000 {
+            self.level(self.lvl, factory)
+        }
         info 
     }
 

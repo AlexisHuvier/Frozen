@@ -95,7 +95,7 @@ impl App {
                     },
                     States::Game => {
                         self.game.draw(c, g, device, &mut glyphs);
-                        self.info = self.game.update(self.info);
+                        self.info = self.game.update(factory, self.info);
                     }
                 }
 
