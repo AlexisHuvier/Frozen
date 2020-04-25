@@ -74,12 +74,11 @@ impl App {
                     if let Some(i) = e.release_args() {
                         self.info = self.game.input(&i, false, factory, self.info);
                     }
+                    e.mouse_cursor(|pos| {
+                        self.game.mouse_move(pos);
+                    });
                 }
             }
-
-            e.mouse_cursor(|pos| {
-                self.game.mouse_move(pos);
-            });
 
             win.draw_2d(&e, |c, g, device| {
                 let fps = fps_counter.tick();
