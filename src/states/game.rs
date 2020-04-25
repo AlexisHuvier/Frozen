@@ -1,25 +1,33 @@
 use piston_window::*;
+use sprite::*;
 use std::fs::File;
 use std::io::Read;
 
 use crate::entities::*;
-use crate::utils::Position;
+use crate::utils::{Position, sprite::load_sprite, TextRender};
 use crate::AppInfo;
 
 pub struct Game {
     pub elsa: Elsa,
     pub platforms: Vec<Platform>,
     pub mouse_pos: [f64; 2],
-    pub nb_ice: u8
+    pub nb_ice: u8,
+    pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
+    pub text_icebox: TextRender
 }
 
 impl Game {
     pub fn new(factory: &mut gfx_device_gl::Factory) -> Game {
+        let mut sprite = load_sprite(factory, "./resources/images/Objects/IceBox.png");
+        sprite.set_scale(0.5, 0.5);
+        sprite.set_position(1150., 40.);
         Game {
             elsa: Elsa::new(factory),
             platforms: vec!(),
             mouse_pos: [0., 0.],
-            nb_ice: 0
+            nb_ice: 0,
+            icon_icebox: sprite,
+            text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50))
         }
     }
 
@@ -33,6 +41,7 @@ impl Game {
         let map = &json_data["map"];
 
         self.nb_ice = json_data["ice"].as_u8().expect("[Level] Number of Ice must be a unsigned integer.");
+        self.text_icebox.text = self.nb_ice.to_string();
 
         self.elsa.pos = Position::new(player["x"].as_i32().expect("[Level] Player X Pos must be a integer."), player["y"].as_i32().expect("[Level] Player Y Pos must be a integer."));
 
@@ -67,6 +76,7 @@ impl Game {
                         if self.nb_ice > 0 {
                             self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory));
                             self.nb_ice -= 1;
+                            self.text_icebox.text = self.nb_ice.to_string();
                         }
                     },
                     _ => ()
@@ -86,6 +96,8 @@ impl Game {
         for i in 0..self.platforms.len() {
             self.platforms[i].render(c, g);
         }
+        self.icon_icebox.draw(c.transform, g);
+        self.text_icebox.draw(c, g, device, glyphs);
     }
     
 }
