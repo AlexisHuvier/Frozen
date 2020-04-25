@@ -5,7 +5,7 @@ use std::io::Read;
 
 use crate::entities::*;
 use crate::utils::{Position, sprite::load_sprite, TextRender};
-use crate::AppInfo;
+use crate::{AppInfo, States};
 
 pub struct Game {
     pub elsa: Elsa,
@@ -80,6 +80,7 @@ impl Game {
             if is_press {
                 match key {
                     Key::R => self.level(self.lvl, factory),
+                    Key::Escape => info.state = States::Menu,
                     _ => ()
                 }
             }

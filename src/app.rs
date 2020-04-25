@@ -53,7 +53,11 @@ impl App {
             match self.info.state {
                 States::Menu => {
                     if let Some(i) = e.press_args() {
-                        self.info = self.menu.input(&i, true, self.info);
+                        let info = self.menu.input(&i, true, self.info);
+                        if info.state == States::Game {
+                            self.game.level(1, factory);
+                        }
+                        self.info = info;
                     }
                     if let Some(i) = e.release_args() {
                         self.info = self.menu.input(&i, false, self.info);
