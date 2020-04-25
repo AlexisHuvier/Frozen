@@ -9,7 +9,8 @@ use crate::AppInfo;
 pub struct Game {
     pub elsa: Elsa,
     pub platforms: Vec<Platform>,
-    pub mouse_pos: [f64; 2]
+    pub mouse_pos: [f64; 2],
+    pub nb_ice: u8
 }
 
 impl Game {
@@ -17,7 +18,8 @@ impl Game {
         Game {
             elsa: Elsa::new(factory),
             platforms: vec!(),
-            mouse_pos: [0., 0.]
+            mouse_pos: [0., 0.],
+            nb_ice: 0
         }
     }
 
@@ -29,6 +31,8 @@ impl Game {
 
         let player = &json_data["player"];
         let map = &json_data["map"];
+
+        self.nb_ice = json_data["ice"].as_u8().expect("[Level] Number of Ice must be a unsigned integer.");
 
         self.elsa.pos = Position::new(player["x"].as_i32().expect("[Level] Player X Pos must be a integer."), player["y"].as_i32().expect("[Level] Player Y Pos must be a integer."));
 
@@ -59,7 +63,12 @@ impl Game {
         if let Button::Mouse(btn) = *button {
             if is_press {
                 match btn {
-                    MouseButton::Left => self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory)),
+                    MouseButton::Left => {
+                        if self.nb_ice > 0 {
+                            self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory));
+                            self.nb_ice -= 1;
+                        }
+                    },
                     _ => ()
                 }
             }
