@@ -15,8 +15,8 @@ pub struct Elsa {
     max_gravity: i8,
     pub gravity: i8,
     time_gravity: u8,
-    grounded: bool,
-    movements: [bool;3],
+    pub grounded: bool,
+    pub movements: [bool;3],
     jumping: bool,
     pub anim: ElsaAnimations
 }

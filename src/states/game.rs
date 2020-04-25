@@ -12,8 +12,10 @@ pub struct Game {
     pub platforms: Vec<Platform>,
     pub mouse_pos: [f64; 2],
     pub nb_ice: u8,
+    pub lvl: u8,
     pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
-    pub text_icebox: TextRender
+    pub text_icebox: TextRender,
+    pub text_restart: TextRender
 }
 
 impl Game {
@@ -26,12 +28,14 @@ impl Game {
             platforms: vec!(),
             mouse_pos: [0., 0.],
             nb_ice: 0,
+            lvl: 0,
             icon_icebox: sprite,
-            text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50))
+            text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50)),
+            text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(580, 50))
         }
     }
 
-    pub fn level(&mut self, nb: i64, factory: &mut gfx_device_gl::Factory) {
+    pub fn level(&mut self, nb: u8, factory: &mut gfx_device_gl::Factory) {
         let mut file = File::open(&*format!("./resources/levels/{}.json", nb)).expect(&*format!("[Level] Level {} non trouvée", nb));
         let mut data = String::new();
         let _res = file.read_to_string(&mut data);
@@ -44,6 +48,9 @@ impl Game {
         self.text_icebox.text = self.nb_ice.to_string();
 
         self.elsa.pos = Position::new(player["x"].as_i32().expect("[Level] Player X Pos must be a integer."), player["y"].as_i32().expect("[Level] Player Y Pos must be a integer."));
+        self.elsa.movements = [false, false, false];
+        self.elsa.grounded = false;
+        self.elsa.gravity = 5;
 
         let mappos = Position::new(map["x"].as_i32().expect("[Level] Map X Pos must be a integer."), map["y"].as_i32().expect("[Level] Map Y Pos must be a integer."));
         let mut platforms: Vec<Platform> = vec!();
@@ -59,6 +66,7 @@ impl Game {
         }
 
         self.platforms = platforms;
+        self.lvl = nb;
     }
 
     pub fn mouse_move(&mut self, pos: [f64; 2]) {
@@ -66,8 +74,15 @@ impl Game {
     }
 
     pub fn input(&mut self, button: &Button, is_press: bool, factory: &mut gfx_device_gl::Factory, info: AppInfo) -> AppInfo { 
+        let mut info = info;
         if let Button::Keyboard(key) = *button {
             self.elsa.input(key, is_press);
+            if is_press {
+                match key {
+                    Key::R => self.level(self.lvl, factory),
+                    _ => ()
+                }
+            }
         }
         if let Button::Mouse(btn) = *button {
             if is_press {
@@ -98,6 +113,9 @@ impl Game {
         }
         self.icon_icebox.draw(c.transform, g);
         self.text_icebox.draw(c, g, device, glyphs);
+        if self.nb_ice == 0 {
+            self.text_restart.draw(c, g, device, glyphs);
+        }
     }
     
 }
