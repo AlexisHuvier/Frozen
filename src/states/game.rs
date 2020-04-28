@@ -15,7 +15,8 @@ pub struct Game {
     pub lvl: u8,
     pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
     pub text_icebox: TextRender,
-    pub text_restart: TextRender
+    pub text_restart: TextRender,
+    pub text_level: TextRender
 }
 
 impl Game {
@@ -31,7 +32,8 @@ impl Game {
             lvl: 0,
             icon_icebox: sprite,
             text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50)),
-            text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(580, 50))
+            text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(520, 100)),
+            text_level: TextRender::new(text::Text::new_color(color::WHITE, 30), "Niveau 0", Position::new(550, 50))
         }
     }
 
@@ -67,6 +69,7 @@ impl Game {
 
         self.platforms = platforms;
         self.lvl = nb;
+        self.text_level.text = format!("Niveau {}", nb);
     }
 
     pub fn mouse_move(&mut self, pos: [f64; 2]) {
@@ -116,6 +119,7 @@ impl Game {
             self.platforms[i].render(c, g);
         }
         self.icon_icebox.draw(c.transform, g);
+        self.text_level.draw(c, g, device, glyphs);
         self.text_icebox.draw(c, g, device, glyphs);
         if self.nb_ice == 0 {
             self.text_restart.draw(c, g, device, glyphs);
