@@ -12,6 +12,7 @@ pub struct Game {
     pub platforms: Vec<Platform>,
     pub mouse_pos: [f64; 2],
     pub nb_ice: u8,
+    unlimited_icebox: bool,
     pub lvl: u8,
     pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
     pub text_icebox: TextRender,
@@ -29,6 +30,7 @@ impl Game {
             platforms: vec!(),
             mouse_pos: [0., 0.],
             nb_ice: 0,
+            unlimited_icebox: false,
             lvl: 0,
             icon_icebox: sprite,
             text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50)),
@@ -94,7 +96,9 @@ impl Game {
                     MouseButton::Left => {
                         if self.nb_ice > 0 {
                             self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory));
-                            self.nb_ice -= 1;
+                            if !self.unlimited_icebox {
+                                self.nb_ice -= 1;
+                            }
                             self.text_icebox.text = self.nb_ice.to_string();
                         }
                     },
@@ -106,6 +110,7 @@ impl Game {
     }
 
     pub fn update(&mut self, factory: &mut gfx_device_gl::Factory, info: AppInfo) -> AppInfo { 
+        self.unlimited_icebox = info.unlimited_icebox;
         self.elsa.update(&self.platforms);
         if self.elsa.pos.y > 1000 {
             self.level(self.lvl, factory)

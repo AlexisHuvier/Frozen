@@ -12,6 +12,7 @@ pub enum States {
 #[derive(Copy, Clone, PartialEq)]
 pub struct AppInfo {
     pub debug: bool,
+    pub unlimited_icebox: bool,
     pub state: States
 }
 
@@ -19,6 +20,7 @@ impl AppInfo {
     pub fn new(conf: &Config) -> AppInfo {
         AppInfo {
             debug: conf.get("debug").as_bool().expect("[Config] Debug value must be boolean"),
+            unlimited_icebox: conf.get("unlimited_icebox").as_bool().expect("[Config] Unlimited Icebox value must be boolean"),
             state: States::Menu
         } 
     }

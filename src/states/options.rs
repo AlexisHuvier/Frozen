@@ -42,6 +42,7 @@ impl OptionGameBool {
 pub struct Options {
     texts: Vec<TextRender>,
     debug: OptionGameBool,
+    unlimited_icebox: OptionGameBool,
     selected_option: usize,
     config: Config,
     win_size: Size
@@ -54,11 +55,19 @@ impl Options {
             true => debug = 0,
             false => debug = 1
         }
+        let unlimited_icebox;
+        match config.get("unlimited_icebox").as_bool().expect("[Config] Unlimited Icebox value must be boolean") {
+            true => unlimited_icebox = 0,
+            false => unlimited_icebox = 1
+        }
+
         let debug_pos = [Position::new(win_size.width as i32 / 2 - 180, win_size.height as i32 / 2 - 51), Position::new(win_size.width as i32 / 2 + 80, win_size.height as i32 / 2 - 51)];
+        let unlimited_pos = [Position::new(win_size.width as i32 / 2 - 200, win_size.height as i32 / 2), Position::new(win_size.width as i32 / 2 + 80, win_size.height as i32 / 2)];
 
         Options {
             texts: vec![TextRender::new(text::Text::new_color(color::WHITE, 35), "Options", Position::new(win_size.width as i32 / 2 - 80, win_size.height as i32 / 2 - 150))],
             debug: OptionGameBool::new("Debug", debug, vec![true, false], debug_pos),
+            unlimited_icebox: OptionGameBool::new("IceBox Infini", unlimited_icebox, vec![true, false], unlimited_pos),
             selected_option: 0,
             config: config,
             win_size: win_size
@@ -70,9 +79,11 @@ impl Options {
             self.texts[i].draw(c, g, device, glyphs);
         }
         self.debug.draw(c, g, device, glyphs);
+        self.unlimited_icebox.draw(c, g, device, glyphs);
         let text_pos: Position;
         match self.selected_option {
             0 => text_pos = self.debug.value_text.position,
+            1 => text_pos = self.unlimited_icebox.value_text.position,
             _ => return
         }
         let polygon1 = [ [ (text_pos.x - 30) as f64, (text_pos.y - 10) as f64 ], [ (text_pos.x - 30) as f64, text_pos.y as f64 ], [ (text_pos.x - 40) as f64, (text_pos.y - 5) as f64] ];
@@ -85,29 +96,32 @@ impl Options {
         let mut info = info;
         if is_press {
             if let Button::Keyboard(key) = *button {
+                match self.selected_option {
+                    0 => {
+                        let mut value = info.debug;
+                        match key {
+                            Key::Left => value = self.debug.change_value(true),
+                            Key::Right => value = self.debug.change_value(false),
+                            _ => ()
+                        }
+                        self.config.set_bool("debug", value);
+                        info.debug = value;
+                    },
+                    1 => {
+                        let mut value = info.unlimited_icebox;
+                        match key {
+                            Key::Left => value = self.unlimited_icebox.change_value(true),
+                            Key::Right => value = self.unlimited_icebox.change_value(false),
+                            _ => ()
+                        }
+                        self.config.set_bool("unlimited_icebox", value);
+                        info.unlimited_icebox = value;
+                    },
+                    _ => ()
+                }
                 match key {
-                    Key::Left => {
-                        match self.selected_option {
-                            0 => {
-                                let value = self.debug.change_value(true);
-                                self.config.set_bool("debug", value);
-                                info.debug = value;
-                            },
-                            _ => ()
-                        }
-                    },
-                    Key::Right => {
-                        match self.selected_option {
-                            0 => {
-                                let value = self.debug.change_value(false);
-                                self.config.set_bool("debug", value);
-                                info.debug = value;
-                            },
-                            _ => ()
-                        }
-                    },
                     Key::Up => if self.selected_option > 0 { self.selected_option -= 1 },
-                    Key::Down => if self.selected_option < 0 { self.selected_option += 1 },
+                    Key::Down => if self.selected_option < 1 { self.selected_option += 1 },
                     Key::Return => { self.config.save(); info.state = States::Menu;},
                     _ => ()
                 }
