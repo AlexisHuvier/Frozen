@@ -17,7 +17,8 @@ pub struct Game {
     pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
     pub text_icebox: TextRender,
     pub text_restart: TextRender,
-    pub text_level: TextRender
+    pub text_level: TextRender,
+    pub bg: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
 }
 
 impl Game {
@@ -25,6 +26,9 @@ impl Game {
         let mut sprite = load_sprite(factory, "./resources/images/Objects/IceBox.png");
         sprite.set_scale(0.5, 0.5);
         sprite.set_position(1150., 40.);
+        let mut bg = load_sprite(factory, "./resources/images/BG/BG.png");
+        bg.set_scale(1.1, 1.1);
+        bg.set_position(640., 480.);
         Game {
             elsa: Elsa::new(factory),
             platforms: vec!(),
@@ -35,7 +39,8 @@ impl Game {
             icon_icebox: sprite,
             text_icebox: TextRender::new(text::Text::new_color(color::WHITE, 30), "0", Position::new(1200, 50)),
             text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(520, 100)),
-            text_level: TextRender::new(text::Text::new_color(color::WHITE, 30), "Niveau 0", Position::new(550, 50))
+            text_level: TextRender::new(text::Text::new_color(color::WHITE, 30), "Niveau 0", Position::new(550, 50)),
+            bg: bg,
         }
     }
 
@@ -95,7 +100,7 @@ impl Game {
                 match btn {
                     MouseButton::Left => {
                         if self.nb_ice > 0 {
-                            self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory));
+                            self.platforms.push(Platform::new(Position::new(self.mouse_pos[0] as i32, self.mouse_pos[1] as i32), "./resources/images/Objects/IceBox.png", factory, 0.59375));
                             if !self.unlimited_icebox {
                                 self.nb_ice -= 1;
                             }
@@ -119,6 +124,7 @@ impl Game {
     }
 
     pub fn draw<G : Graphics<Texture=gfx_texture::Texture<gfx_device_gl::Resources>>>(&mut self, c: piston_window::Context, g: &mut G, device: &mut gfx_device_gl::Device, glyphs: &mut Glyphs) {
+        self.bg.draw(c.transform, g);
         self.elsa.render(c, g);
         for i in 0..self.platforms.len() {
             self.platforms[i].render(c, g);
