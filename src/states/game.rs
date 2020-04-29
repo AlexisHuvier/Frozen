@@ -19,6 +19,7 @@ pub struct Game {
     pub text_restart: TextRender,
     pub text_level: TextRender,
     pub bg: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
+    pub win: Platform
 }
 
 impl Game {
@@ -41,6 +42,7 @@ impl Game {
             text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(520, 100)),
             text_level: TextRender::new(text::Text::new_color(color::WHITE, 30), "Niveau 0", Position::new(550, 50)),
             bg: bg,
+            win: Platform::new(Position::new(0, 0), "./resources/images/Objects/Sign_2.png", factory, 1.)
         }
     }
 
@@ -67,9 +69,12 @@ impl Game {
         for x in 0..map["blocks"].len() {
             for y in 0..map["blocks"][x].len() {
                 let id = map["blocks"][x][y].as_i32().expect(&*format!("[Level] Block ({}, {}) must be a integer.", y, x));
-                if id != 0 {
+                if id == 4 {
+                    self.win.set_position(Position::new(y as i32*76+mappos.x, x as i32*76+mappos.y));
+                }
+                else if id != 0 {
                     let plat_pos = Position::new(y as i32*76+mappos.x, x as i32*76+mappos.y);
-                    platforms.push(Platform::new(plat_pos, &*format!("./resources/images/Tiles/{}.png", id), factory));
+                    platforms.push(Platform::new(plat_pos, &*format!("./resources/images/Tiles/{}.png", id), factory, 0.59375));
                 }
             }
         }
@@ -115,8 +120,16 @@ impl Game {
     }
 
     pub fn update(&mut self, factory: &mut gfx_device_gl::Factory, info: AppInfo) -> AppInfo { 
+        let mut info = info;
         self.unlimited_icebox = info.unlimited_icebox;
-        self.elsa.update(&self.platforms);
+        if self.elsa.update(&self.platforms, &self.win) {
+            if self.lvl == 2 {
+                info.state = States::Win;
+            }
+            else {
+                self.level(self.lvl + 1, factory);
+            }
+        };
         if self.elsa.pos.y > 1000 {
             self.level(self.lvl, factory)
         }
@@ -129,6 +142,7 @@ impl Game {
         for i in 0..self.platforms.len() {
             self.platforms[i].render(c, g);
         }
+        self.win.render(c, g);
         self.icon_icebox.draw(c.transform, g);
         self.text_level.draw(c, g, device, glyphs);
         self.text_icebox.draw(c, g, device, glyphs);
