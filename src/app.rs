@@ -6,7 +6,8 @@ use crate::states::*;
 pub enum States {
     Menu,
     Options,
-    Game
+    Game,
+    Win
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -31,6 +32,7 @@ pub struct App {
     menu: Menu,
     game: Game,
     options: Options,
+    win: Win
 }
 
 impl App {
@@ -42,7 +44,8 @@ impl App {
             info: AppInfo::new(&conf),
             menu: Menu::new(size),
             game: game,
-            options: Options::new(size, conf)
+            options: Options::new(size, conf),
+            win: Win::new(size)
         }
     }
 
@@ -83,6 +86,14 @@ impl App {
                     e.mouse_cursor(|pos| {
                         self.game.mouse_move(pos);
                     });
+                },
+                States::Win => {
+                    if let Some(i) = e.press_args() {
+                        self.info = self.win.input(&i, true, self.info);
+                    }
+                    if let Some(i) = e.release_args() {
+                        self.info = self.win.input(&i, false, self.info);
+                    }
                 }
             }
 
@@ -102,6 +113,10 @@ impl App {
                     States::Game => {
                         self.game.draw(c, g, device, &mut glyphs);
                         self.info = self.game.update(factory, self.info);
+                    },
+                    States::Win => {
+                        self.win.draw(c, g, device, &mut glyphs);
+                        self.info = self.win.update(self.info);
                     }
                 }
 
