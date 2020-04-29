@@ -2,7 +2,7 @@ use sprite::*;
 use piston_window::*;
 
 use crate::entities::Platform;
-use crate::utils::{sprite::load_sprite, Position};
+use crate::utils::{sprite::load_sprite, Position, CollisionInfo};
 
 pub enum ElsaAnimations {
     IDLE
@@ -59,7 +59,7 @@ impl Elsa {
         }
     }
 
-    pub fn can_go(&mut self, position: &Position, platforms: &Vec<Platform>) -> bool {
+    pub fn can_go(&mut self, position: &Position, platforms: &Vec<Platform>, win: &Platform) -> CollisionInfo {
         let elsa_bounding = self.get_current_sprite().bounding_box();
         let px = position.x as f64 - elsa_bounding[2] / 2.;
         let py = position.y as f64 - elsa_bounding[3] / 2.;
@@ -69,14 +69,21 @@ impl Elsa {
             let plx = pls[0];
             let ply = pls[1];
             if px < plx + pls[2] && px + elsa_bounding[2] > plx && py < ply + pls[3] && py + elsa_bounding[3] > ply {
-                return false;
+                return CollisionInfo::new(false, "Platform");
             }
         }
 
-        true
+        let ws = win.sprite.bounding_box();
+        let wx = ws[0];
+        let wy = ws[1];
+        if px < wx + ws[2] && px + elsa_bounding[2] > wx && py < wy + ws[3] && py + elsa_bounding[3] > wy {
+            return CollisionInfo::new(false, "Win");
+        }
+
+        CollisionInfo::new(true, "")
     }
 
-    pub fn update(&mut self, platforms: &Vec<Platform>) {
+    pub fn update(&mut self, platforms: &Vec<Platform>, win: &Platform) -> bool {
         //Mouvements
         let mut pos = self.pos;
         if self.movements[0] {
@@ -86,8 +93,13 @@ impl Elsa {
             pos.x += 5;
         }
 
-        if self.can_go(&pos, platforms) {
+        let coll = self.can_go(&pos, platforms, win);
+        if coll.can_go {
             self.pos = pos;
+        }
+
+        if coll.from == "Win" {
+            return true;
         }
 
         //Jump
@@ -104,13 +116,18 @@ impl Elsa {
 
         //Update Gravity
         let futurpos = Position::new(self.pos.x, self.pos.y + self.gravity as i32);
-        if self.can_go(&futurpos, platforms) {
+        let coll = self.can_go(&futurpos, platforms, win);
+        if coll.can_go {
             self.grounded = false;
             self.pos = futurpos;
         }
         else if self.gravity > 0 {
             self.grounded = true;
             self.gravity = 2;
+        }
+
+        if coll.from == "Win" {
+            return true;
         }
 
         if self.time_gravity == 0 && self.gravity < self.max_gravity && !self.grounded {
@@ -123,6 +140,8 @@ impl Elsa {
 
         //Update Sprite
         self.update_sprite(true);
+
+        false
     }
 
     pub fn input(&mut self, key: Key, is_press: bool) {
