@@ -18,13 +18,29 @@ pub struct Elsa {
     pub grounded: bool,
     pub movements: [bool;3],
     jumping: bool,
-    pub anim: ElsaAnimations
+    pub anim: ElsaAnimations,
+    anim_time: u8
 }
 
 impl Elsa {
     pub fn new(factory: &mut gfx_device_gl::Factory) -> Elsa {
         let mut idle = vec![
-            load_sprite(factory, "./resources/images/Elsa/IDLE (1).png")
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (1).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (2).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (3).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (4).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (5).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (6).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (7).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (8).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (9).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (10).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (11).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (12).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (13).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (14).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (15).png"),
+            load_sprite(factory, "./resources/images/Elsa/Idle/Idle (16).png")
         ];
 
         for i in 0..idle.len() {
@@ -41,7 +57,8 @@ impl Elsa {
             grounded: false,
             movements: [false, false, false],
             jumping: false,
-            anim: ElsaAnimations::IDLE
+            anim: ElsaAnimations::IDLE,
+            anim_time: 5
         }
     }
 
@@ -51,12 +68,10 @@ impl Elsa {
         }
     }
 
-    pub fn update_sprite(&mut self, change_pos: bool) {
-        if change_pos {
-            let x = self.pos.x;
-            let y = self.pos.y;
-            self.get_current_sprite().set_position(x as f64, y as f64);
-        }
+    pub fn update_sprite(&mut self) {
+        let x = self.pos.x;
+        let y = self.pos.y;
+        self.get_current_sprite().set_position(x as f64, y as f64);
     }
 
     pub fn can_go(&mut self, position: &Position, platforms: &Vec<Platform>, win: &Platform) -> CollisionInfo {
@@ -138,8 +153,25 @@ impl Elsa {
             self.time_gravity -= 1;
         }
 
+        //Animation
+        if self.anim_time == 0 {
+            self.sprite += 1;
+
+            let len;
+            match self.anim {
+                ElsaAnimations::IDLE => len = self.idle.len()
+            }
+            if self.sprite == len  {
+                self.sprite = 0;
+            }
+
+            self.anim_time = 5;
+        }
+
+        self.anim_time -= 1;
+
         //Update Sprite
-        self.update_sprite(true);
+        self.update_sprite();
 
         false
     }
