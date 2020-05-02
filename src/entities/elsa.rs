@@ -18,6 +18,7 @@ pub struct Elsa {
     time_gravity: u8,
     pub grounded: bool,
     pub movements: [bool;3],
+    pub facing_left: bool,
     jumping: bool,
     pub anim: ElsaAnimations,
     anim_time: u8
@@ -73,6 +74,9 @@ impl Elsa {
         let x = self.pos.x;
         let y = self.pos.y;
         self.get_current_sprite().set_position(x as f64, y as f64);
+
+        let face = self.facing_left;
+        self.get_current_sprite().set_flip_x(face);
     }
 
     pub fn can_go(&mut self, position: &Position, platforms: &Vec<Platform>, win: &Platform) -> CollisionInfo {
@@ -102,11 +106,18 @@ impl Elsa {
     pub fn update(&mut self, platforms: &Vec<Platform>, win: &Platform) -> bool {
         //Mouvements
         let mut pos = self.pos;
-        if self.movements[0] {
-            pos.x -= 5;
+
+        if self.movements[0] { 
+            pos.x -= 5; 
+            if !self.facing_left {
+                self.facing_left = true;
+            }
         }
-        if self.movements[1] {
-            pos.x += 5;
+        if self.movements[1] { 
+            pos.x += 5; 
+            if self.facing_left {
+                self.facing_left = false;
+            }
         }
 
         let coll = self.can_go(&pos, platforms, win);
@@ -171,9 +182,7 @@ impl Elsa {
 
         self.anim_time -= 1;
 
-        //Update Sprite
         self.update_sprite();
-
         false
     }
 
