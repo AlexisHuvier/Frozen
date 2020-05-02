@@ -6,12 +6,14 @@ use crate::utils::{sprite::load_sprite, Position, CollisionInfo};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ElsaAnimations {
-    IDLE
+    IDLE,
+    WALK
 }
 
 pub struct Elsa {
     pub pos: Position,
     pub idle: Vec<Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>>,
+    pub walk: Vec<Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>>,
     pub sprite: usize,
     max_gravity: i8,
     pub gravity: i8,
@@ -45,19 +47,47 @@ impl Elsa {
             load_sprite(factory, "./resources/images/Elsa/Idle/Idle (16).png")
         ];
 
+        let mut walk = vec![
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (1).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (2).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (3).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (4).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (5).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (6).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (7).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (8).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (9).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (10).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (11).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (12).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (13).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (14).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (15).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (16).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (17).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (18).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (19).png"),
+            load_sprite(factory, "./resources/images/Elsa/Walk/Walk (20).png")
+        ];
+
         for i in 0..idle.len() {
             idle[i].set_scale(0.25, 0.25);
+        }
+        for i in 0..walk.len() {
+            walk[i].set_scale(0.25, 0.25);
         }
 
         Elsa {
             pos: Position::new(100, 100),
             idle: idle,
+            walk: walk,
             sprite: 0,
             max_gravity: 5,
             gravity: 5,
             time_gravity: 5,
             grounded: false,
             movements: [false, false, false],
+            facing_left: false,
             jumping: false,
             anim: ElsaAnimations::IDLE,
             anim_time: 3
@@ -66,7 +96,8 @@ impl Elsa {
 
     pub fn get_current_sprite(&mut self) -> &mut Sprite<gfx_texture::Texture<gfx_device_gl::Resources>> {
         match self.anim {
-            ElsaAnimations::IDLE => return &mut self.idle[self.sprite]
+            ElsaAnimations::IDLE => return &mut self.idle[self.sprite],
+            ElsaAnimations::WALK => return &mut self.walk[self.sprite]
         }
     }
 
@@ -166,12 +197,24 @@ impl Elsa {
         }
 
         //Animation
+        if self.movements[0] || self.movements[1] {
+            if self.anim == ElsaAnimations::IDLE {
+                self.anim = ElsaAnimations::WALK;
+                self.sprite = 0;
+            }
+        }
+        else if self.anim == ElsaAnimations::WALK {
+            self.anim = ElsaAnimations::IDLE;
+            self.sprite = 0;
+        }
+
         if self.anim_time == 0 {
             self.sprite += 1;
 
             let len;
             match self.anim {
-                ElsaAnimations::IDLE => len = self.idle.len()
+                ElsaAnimations::IDLE => len = self.idle.len(),
+                ElsaAnimations::WALK => len = self.walk.len()
             }
             if self.sprite == len  {
                 self.sprite = 0;
