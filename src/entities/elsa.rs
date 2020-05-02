@@ -58,7 +58,7 @@ impl Elsa {
             movements: [false, false, false],
             jumping: false,
             anim: ElsaAnimations::IDLE,
-            anim_time: 5
+            anim_time: 3
         }
     }
 
@@ -165,7 +165,7 @@ impl Elsa {
                 self.sprite = 0;
             }
 
-            self.anim_time = 5;
+            self.anim_time = 3;
         }
 
         self.anim_time -= 1;
