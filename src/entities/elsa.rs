@@ -4,6 +4,7 @@ use piston_window::*;
 use crate::entities::Platform;
 use crate::utils::{sprite::load_sprite, Position, CollisionInfo};
 
+#[derive(Copy, Clone, PartialEq)]
 pub enum ElsaAnimations {
     IDLE
 }
