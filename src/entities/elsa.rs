@@ -111,7 +111,11 @@ impl Elsa {
     }
 
     pub fn can_go(&mut self, position: &Position, platforms: &Vec<Platform>, win: &Platform) -> CollisionInfo {
-        let elsa_bounding = self.get_current_sprite().bounding_box();
+        let elsa_bounding;
+        match self.anim {
+            ElsaAnimations::IDLE => elsa_bounding = [0., 0., 75., 107.],
+            ElsaAnimations::WALK => elsa_bounding = [0., 0., 75., 107.]
+        }
         let px = position.x as f64 - elsa_bounding[2] / 2.;
         let py = position.y as f64 - elsa_bounding[3] / 2.;
 
