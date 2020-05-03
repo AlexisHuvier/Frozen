@@ -100,8 +100,8 @@ impl Options {
                     0 => {
                         let mut value = info.fps;
                         match key {
-                            Key::Left => value = self.debug.change_value(true),
-                            Key::Right => value = self.debug.change_value(false),
+                            Key::Left | Key::Q => value = self.fps.change_value(true),
+                            Key::Right | Key::D => value = self.fps.change_value(false),
                             _ => ()
                         }
                         self.config.set_bool("fps", value);
@@ -110,8 +110,8 @@ impl Options {
                     1 => {
                         let mut value = info.unlimited_icebox;
                         match key {
-                            Key::Left => value = self.unlimited_icebox.change_value(true),
-                            Key::Right => value = self.unlimited_icebox.change_value(false),
+                            Key::Left | Key::Q => value = self.unlimited_icebox.change_value(true),
+                            Key::Right | Key::D => value = self.unlimited_icebox.change_value(false),
                             _ => ()
                         }
                         self.config.set_bool("unlimited_icebox", value);
@@ -120,8 +120,8 @@ impl Options {
                     _ => ()
                 }
                 match key {
-                    Key::Up => if self.selected_option > 0 { self.selected_option -= 1 },
-                    Key::Down => if self.selected_option < 1 { self.selected_option += 1 },
+                    Key::Up | Key::Z => if self.selected_option > 0 { self.selected_option -= 1 },
+                    Key::Down | Key::S => if self.selected_option < 1 { self.selected_option += 1 },
                     Key::Return => { self.config.save(); info.state = States::Menu;},
                     _ => ()
                 }

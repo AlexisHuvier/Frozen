@@ -231,9 +231,9 @@ impl Elsa {
 
     pub fn input(&mut self, key: Key, is_press: bool) {
         match key {
-            Key::Left => self.movements[0] = is_press,
-            Key::Right => self.movements[1] = is_press,
-            Key::Up => self.movements[2] = is_press,
+            Key::Left | Key::Q => self.movements[0] = is_press,
+            Key::Right | Key::D => self.movements[1] = is_press,
+            Key::Up | Key::Z => self.movements[2] = is_press,
             _ => ()
         }
     }

@@ -43,8 +43,8 @@ impl Menu {
                         else if self.selected_btn == 2 { info.state = States::Options }
                         else if self.selected_btn == 3 { exit(0); }
                     }
-                    Key::Up => if self.selected_btn > 1 { self.selected_btn -= 1; },
-                    Key::Down => if self.selected_btn < 3 { self.selected_btn += 1; },
+                    Key::Up | Key::Z => if self.selected_btn > 1 { self.selected_btn -= 1; },
+                    Key::Down | Key::S => if self.selected_btn < 3 { self.selected_btn += 1; },
                     _ => ()
                 }
             }
