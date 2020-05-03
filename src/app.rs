@@ -12,7 +12,7 @@ pub enum States {
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct AppInfo {
-    pub debug: bool,
+    pub fps: bool,
     pub unlimited_icebox: bool,
     pub state: States
 }
@@ -20,7 +20,7 @@ pub struct AppInfo {
 impl AppInfo {
     pub fn new(conf: &Config) -> AppInfo {
         AppInfo {
-            debug: conf.get("debug").as_bool().expect("[Config] Debug value must be boolean"),
+            fps: conf.get("fps").as_bool().expect("[Config] FPS value must be boolean"),
             unlimited_icebox: conf.get("unlimited_icebox").as_bool().expect("[Config] Unlimited Icebox value must be boolean"),
             state: States::Menu
         } 
@@ -120,7 +120,7 @@ impl App {
                     }
                 }
 
-                if self.info.debug {
+                if self.info.fps {
                     let transform = c.transform.trans(10., 20.);
                     let _res = text::Text::new_color(Color::new(255, 255, 255).get_float(), 20).draw(
                         &*format!("FPS : {}", fps),

@@ -41,7 +41,7 @@ impl OptionGameBool {
 #[derive(Clone)]
 pub struct Options {
     texts: Vec<TextRender>,
-    debug: OptionGameBool,
+    fps: OptionGameBool,
     unlimited_icebox: OptionGameBool,
     selected_option: usize,
     config: Config,
@@ -50,10 +50,10 @@ pub struct Options {
 
 impl Options {
     pub fn new(win_size: Size, config: Config) -> Options {
-        let debug;
-        match config.get("debug").as_bool().expect("[Config] Debug value must be boolean") {
-            true => debug = 0,
-            false => debug = 1
+        let fps;
+        match config.get("fps").as_bool().expect("[Config] FPS value must be boolean") {
+            true => fps = 0,
+            false => fps = 1
         }
         let unlimited_icebox;
         match config.get("unlimited_icebox").as_bool().expect("[Config] Unlimited Icebox value must be boolean") {
@@ -61,12 +61,12 @@ impl Options {
             false => unlimited_icebox = 1
         }
 
-        let debug_pos = [Position::new(win_size.width as i32 / 2 - 180, win_size.height as i32 / 2 - 51), Position::new(win_size.width as i32 / 2 + 80, win_size.height as i32 / 2 - 51)];
+        let fps_pos = [Position::new(win_size.width as i32 / 2 - 190, win_size.height as i32 / 2 - 51), Position::new(win_size.width as i32 / 2 + 80, win_size.height as i32 / 2 - 51)];
         let unlimited_pos = [Position::new(win_size.width as i32 / 2 - 200, win_size.height as i32 / 2), Position::new(win_size.width as i32 / 2 + 80, win_size.height as i32 / 2)];
 
         Options {
             texts: vec![TextRender::new(text::Text::new_color(color::WHITE, 35), "Options", Position::new(win_size.width as i32 / 2 - 80, win_size.height as i32 / 2 - 150))],
-            debug: OptionGameBool::new("Debug", debug, vec![true, false], debug_pos),
+            fps: OptionGameBool::new("Show FPS", fps, vec![true, false], fps_pos),
             unlimited_icebox: OptionGameBool::new("IceBox Infini", unlimited_icebox, vec![true, false], unlimited_pos),
             selected_option: 0,
             config: config,
@@ -78,11 +78,11 @@ impl Options {
         for i in 0..self.texts.len() {
             self.texts[i].draw(c, g, device, glyphs);
         }
-        self.debug.draw(c, g, device, glyphs);
+        self.fps.draw(c, g, device, glyphs);
         self.unlimited_icebox.draw(c, g, device, glyphs);
         let text_pos: Position;
         match self.selected_option {
-            0 => text_pos = self.debug.value_text.position,
+            0 => text_pos = self.fps.value_text.position,
             1 => text_pos = self.unlimited_icebox.value_text.position,
             _ => return
         }
@@ -98,14 +98,14 @@ impl Options {
             if let Button::Keyboard(key) = *button {
                 match self.selected_option {
                     0 => {
-                        let mut value = info.debug;
+                        let mut value = info.fps;
                         match key {
                             Key::Left => value = self.debug.change_value(true),
                             Key::Right => value = self.debug.change_value(false),
                             _ => ()
                         }
-                        self.config.set_bool("debug", value);
-                        info.debug = value;
+                        self.config.set_bool("fps", value);
+                        info.fps = value;
                     },
                     1 => {
                         let mut value = info.unlimited_icebox;
