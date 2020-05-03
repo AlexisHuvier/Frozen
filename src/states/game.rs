@@ -2,6 +2,8 @@ use piston_window::*;
 use sprite::*;
 use std::fs::File;
 use std::io::Read;
+use std::path::PathBuf;
+use glob::glob;
 
 use crate::entities::*;
 use crate::utils::{Position, sprite::load_sprite, TextRender};
@@ -13,13 +15,14 @@ pub struct Game {
     pub mouse_pos: [f64; 2],
     pub nb_ice: u8,
     unlimited_icebox: bool,
-    pub lvl: u8,
+    pub lvl: usize,
     pub icon_icebox: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
     pub text_icebox: TextRender,
     pub text_restart: TextRender,
     pub text_level: TextRender,
     pub bg: Sprite<gfx_texture::Texture<gfx_device_gl::Resources>>,
-    pub win: Platform
+    pub win: Platform,
+    pub max_lvl: usize
 }
 
 impl Game {
@@ -30,6 +33,7 @@ impl Game {
         let mut bg = load_sprite(factory, "./resources/images/BG/BG.png");
         bg.set_scale(1.1, 1.1);
         bg.set_position(640., 480.);
+        let lvl = glob("./resources/levels/*.json").unwrap().filter_map(Result::ok).collect::<Vec<PathBuf>>().len();
         Game {
             elsa: Elsa::new(factory),
             platforms: vec!(),
@@ -42,11 +46,12 @@ impl Game {
             text_restart: TextRender::new(text::Text::new_color(color::WHITE, 30), "R to Restart", Position::new(520, 100)),
             text_level: TextRender::new(text::Text::new_color(color::WHITE, 30), "Niveau 0", Position::new(550, 50)),
             bg: bg,
+            max_lvl: lvl,
             win: Platform::new(Position::new(0, 0), "./resources/images/Objects/Sign_2.png", factory, 1.)
         }
     }
 
-    pub fn level(&mut self, nb: u8, factory: &mut gfx_device_gl::Factory) {
+    pub fn level(&mut self, nb: usize, factory: &mut gfx_device_gl::Factory) {
         let mut file = File::open(&*format!("./resources/levels/{}.json", nb)).expect(&*format!("[Level] Level {} non trouvée", nb));
         let mut data = String::new();
         let _res = file.read_to_string(&mut data);
@@ -123,7 +128,7 @@ impl Game {
         let mut info = info;
         self.unlimited_icebox = info.unlimited_icebox;
         if self.elsa.update(&self.platforms, &self.win) {
-            if self.lvl == 2 {
+            if self.lvl == self.max_lvl {
                 info.state = States::Win;
             }
             else {
